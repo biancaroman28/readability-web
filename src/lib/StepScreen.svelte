@@ -2,9 +2,10 @@
   import { tick } from 'svelte';
   import type { Letter, Step } from './participant';
 
-  let { step, total, pending, error, selected = $bindable(), oncontinue }: {
+  let { step, total, pending, error, selected = $bindable(), oncontinue, onleave }: {
     step: Step | null; total: number; pending: boolean; error: string;
-    selected: Letter | undefined; oncontinue: (pas: number, letter: Letter) => void | Promise<void>
+    selected: Letter | undefined; oncontinue: (pas: number, letter: Letter) => void | Promise<void>;
+    onleave: () => void
   } = $props();
   let heading = $state<HTMLHeadingElement>();
 
@@ -51,12 +52,20 @@
       {/if}
     {/key}
     {#if error}<p class="error" role="alert">{error}</p>{/if}
-    <button class="continue" disabled={!selected || pending} onclick={() => { if (selected) void oncontinue(pas, selected); }}>
-      {pending ? 'Se salvează…' : 'Continuă'}
-    </button>
+
   {:else}
     <h1 tabindex="-1" bind:this={heading}>Ai terminat sesiunea</h1>
   {/if}
+  <div class="session-actions">
+    {#if step}
+      {@const pas = step.pas}
+      <button type="button" class="continue" disabled={!selected || pending}
+        onclick={() => { if (selected) void oncontinue(pas, selected); }}>
+        {pending ? 'Se salvează…' : 'Continuă'}
+      </button>
+    {/if}
+    <button type="button" class="leave" onclick={onleave}>Ieși din sesiune</button>
+  </div>
 </main>
 
 
@@ -92,7 +101,9 @@
     line-height: 1.35;
   }
   button:disabled { cursor: default; }
-  .continue { margin-top: .75rem; background: #dce8f8; color: #000; font-size: 1.2rem; }
+  .session-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: .75rem; }
+  .leave { margin-inline-start: auto; font-size: 1.2rem; }
+  .continue { background: #dce8f8; color: #000; font-size: 1.2rem; }
   .continue:disabled { background: #e6ebf2; }
   .continue:not(:disabled):hover { background: #fff0cc; }
   button:not(:disabled):hover, button[aria-pressed="true"] { background: #fff0cc; border-color: #93601c; }

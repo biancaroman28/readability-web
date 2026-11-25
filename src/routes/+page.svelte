@@ -9,10 +9,31 @@
   let name = $state('');
   let email = $state('');
   let selected = $state<Letter>();
-  let token: string;
+  let token: string | undefined;
+  let sessionVersion = 0;
+
+  function storageKey() {
+    return 'readability:session:' + location.pathname.replace(/\/index\.html$/, '/').replace(/\/$/, '');
+  }
+
+  function leaveSession() {
+    localStorage.removeItem(storageKey());
+    clearSession();
+  }
+
+  function clearSession() {
+    sessionVersion++;
+    token = undefined;
+    pending = false;
+    error = '';
+    selected = undefined;
+    name = '';
+    email = '';
+    session = { enrolled: false };
+  }
 
   function browserToken() {
-    const key = 'readability:session:' + location.pathname.replace(/\/index\.html$/, '/').replace(/\/$/, '');
+    const key = storageKey();
     const existing = localStorage.getItem(key);
     if (existing && /^[a-f0-9]{64}$/.test(existing)) return existing;
     const value = Array.from(crypto.getRandomValues(new Uint8Array(32)),
@@ -24,6 +45,7 @@
 
   async function call(action: string, payload: Record<string, string | number> = {}) {
     if (pending) return;
+    const version = sessionVersion;
     pending = true;
     error = '';
     try {
@@ -36,31 +58,42 @@
       });
       if (!response.ok) {
         const failure = await response.json().catch(() => null);
+        if (version !== sessionVersion) return;
         if (failure?.code === 'expired') {
           session = { enrolled: false };
           selected = undefined;
         }
         throw new Error(failure?.message || 'Cererea nu a putut fi confirmată. Încearcă din nou.');
       }
-      session = await response.json() as Session;
+      const next = await response.json() as Session;
+      if (version !== sessionVersion) return;
+      session = next;
       if (action === 'answer') selected = undefined;
       if (action === 'enroll') { name = ''; email = ''; }
     } catch (cause) {
+      if (version !== sessionVersion) return;
       error = cause instanceof Error && cause.name === 'Error'
         ? cause.message : 'Cererea nu a putut fi confirmată. Încearcă din nou.';
     } finally {
-      pending = false;
+      if (version === sessionVersion) pending = false;
     }
   }
 
-  onMount(() => { void call('progress'); });
+  onMount(() => {
+    void call('progress');
+    function onStorage(event: StorageEvent) {
+      if (event.key === storageKey() && event.newValue === null && event.oldValue === token) clearSession();
+    }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  });
 </script>
 
 <svelte:head><title>Readability Experiment</title></svelte:head>
 
 {#if session?.enrolled}
   <StepScreen step={session.step} total={session.total} {pending} {error} bind:selected
-    oncontinue={(pas, letter) => call('answer', { pas, letter })} />
+    oncontinue={(pas, letter) => call('answer', { pas, letter })} onleave={leaveSession} />
 {:else}
   <main>
     <h1>Readability Experiment</h1>
