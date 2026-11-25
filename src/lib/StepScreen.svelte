@@ -92,10 +92,10 @@
     line-height: 1.35;
   }
   button:disabled { cursor: default; }
-  .continue { margin-top: .75rem; background: #294974; color: white; font-size: 1.2rem; }
-  .continue:disabled { opacity: .55; }
-  .continue:not(:disabled):hover { background: #395985; }
-  button:hover, button[aria-pressed="true"] { background: #fff0cc; border-color: #93601c; }
+  .continue { margin-top: .75rem; background: #dce8f8; color: #000; font-size: 1.2rem; }
+  .continue:disabled { background: #e6ebf2; }
+  .continue:not(:disabled):hover { background: #fff0cc; }
+  button:not(:disabled):hover, button[aria-pressed="true"] { background: #fff0cc; border-color: #93601c; }
   button:focus-visible { outline: 3px solid #235695; outline-offset: 3px; }
   span { white-space: pre-wrap; overflow-wrap: anywhere; }
   .pair button { display: flex; flex-direction: column; gap: .4rem; }
