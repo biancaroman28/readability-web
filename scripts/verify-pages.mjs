@@ -3,7 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const index = await readFile('build/index.html', 'utf8');
-assert.match(index, /Experiment de comprehensiune/);
+assert.match(index, /Readability Experiment/);
 const markers = [
   'raspuns_corect', 'exp_readability25.csv', 'selected_texts.csv', 'sb_secret_',
   'SUPABASE_SECRET_KEY', 'READABILITY_SERVICE_KEY'

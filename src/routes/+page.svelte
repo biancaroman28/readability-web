@@ -56,14 +56,14 @@
   onMount(() => { void call('progress'); });
 </script>
 
-<svelte:head><title>Experiment de comprehensiune</title></svelte:head>
+<svelte:head><title>Readability Experiment</title></svelte:head>
 
 {#if session?.enrolled}
   <StepScreen step={session.step} total={session.total} {pending} {error} bind:selected
     oncontinue={(pas, letter) => call('answer', { pas, letter })} />
 {:else}
   <main>
-    <h1>Experiment de comprehensiune</h1>
+    <h1>Readability Experiment</h1>
     {#if session}
       <form onsubmit={(event) => { event.preventDefault(); void call('enroll', { name, email }); }} aria-busy={pending}>
         <label>Nume <input bind:value={name} autocomplete="name" required minlength="2" maxlength="120" /></label>
