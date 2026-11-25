@@ -27,14 +27,14 @@
             <strong>Text A</strong>
             <span>„{step.fragmentA}”</span>
             {#if step.attributionA}
-              <span class="attribution">{step.attributionA.author}, <cite>{step.attributionA.title}</cite> ({step.attributionA.year})</span>
+              <span class="attribution">{step.attributionA.author}, <cite>{step.attributionA.title}</cite>{step.attributionA.year ? ' (' + step.attributionA.year + ')' : ''}</span>
             {/if}
           </button>
           <button type="button" aria-pressed={selected === 'B'} disabled={pending} onclick={() => { selected = 'B'; }}>
             <strong>Text B</strong>
             <span>„{step.fragmentB}”</span>
             {#if step.attributionB}
-              <span class="attribution">{step.attributionB.author}, <cite>{step.attributionB.title}</cite> ({step.attributionB.year})</span>
+              <span class="attribution">{step.attributionB.author}, <cite>{step.attributionB.title}</cite>{step.attributionB.year ? ' (' + step.attributionB.year + ')' : ''}</span>
             {/if}
           </button>
         </div>
